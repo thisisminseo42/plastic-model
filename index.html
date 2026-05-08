@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>케미컬 위기 대응 모델 — 폐플라스틱 재활용 필요 효율 계산기</title>
+<title>케미컬 위기 대응 모델 v3</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -15,178 +15,145 @@
     line-height: 1.6;
   }
   .container {
-    max-width: 760px;
+    max-width: 800px;
     margin: 0 auto;
     background: #ffffff;
     border-radius: 16px;
     border: 1px solid rgba(0,0,0,0.08);
     padding: 2rem 2rem 2.5rem;
   }
-  h1 {
-    font-size: 22px;
-    font-weight: 500;
-    margin: 0 0 0.5rem;
+  h1 { font-size: 22px; font-weight: 500; margin: 0 0 0.5rem; }
+  .subtitle { font-size: 14px; color: #6b6b6b; margin: 0 0 1.5rem; }
+  .assumption-box {
+    background: #fdf6e3;
+    border-left: 3px solid #b58900;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #5a4a1a;
+    line-height: 1.6;
+    margin-bottom: 2rem;
   }
-  .subtitle {
-    font-size: 14px;
-    color: #6b6b6b;
-    margin: 0 0 2rem;
-  }
+  .assumption-box strong { color: #1a1a1a; }
   .result-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
   }
-  .result-card-lg {
+  .result-card {
     background: #f1efe8;
     border-radius: 12px;
     padding: 1rem 1.25rem;
   }
-  .result-card-lg .label {
-    font-size: 12px;
-    color: #6b6b6b;
-    margin: 0 0 4px;
-  }
-  .result-card-lg .value {
-    font-size: 26px;
-    font-weight: 500;
-    margin: 0;
-    line-height: 1;
-  }
-  .result-card-lg .detail {
-    font-size: 11px;
-    color: #8a8a8a;
-    margin: 6px 0 0;
-  }
+  .result-card.korea { border-left: 3px solid #1a1a1a; }
+  .result-card .label { font-size: 11px; color: #8a8a8a; margin: 0 0 4px; font-weight: 500; }
+  .result-card .value { font-size: 24px; font-weight: 500; margin: 0; line-height: 1; }
+  .result-card .detail { font-size: 11px; color: #8a8a8a; margin: 6px 0 0; }
   .stats-row {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
     margin-bottom: 1.5rem;
   }
-  .stat-card {
-    background: #f1efe8;
-    border-radius: 8px;
-    padding: 12px;
+  .stat-card { background: #f1efe8; border-radius: 8px; padding: 12px; }
+  .stat-card .label { font-size: 12px; color: #6b6b6b; margin: 0 0 4px; }
+  .stat-card .value { font-size: 17px; font-weight: 500; margin: 0; }
+  .stat-card .unit { font-size: 11px; color: #8a8a8a; margin: 2px 0 0; }
+  .section-title { font-size: 14px; font-weight: 500; margin: 1.5rem 0 12px; color: #4a4a4a; }
+  .slider-block { margin-bottom: 16px; }
+  .slider-row { display: flex; align-items: center; gap: 12px; }
+  .slider-row label { font-size: 13px; color: #6b6b6b; min-width: 170px; }
+  .slider-row .value-out { font-size: 13px; font-weight: 500; min-width: 95px; text-align: right; }
+  .slider-wrapper { flex: 1; position: relative; padding-top: 24px; }
+  .korea-marker {
+    position: absolute; top: 0; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center;
+    pointer-events: none; z-index: 1;
   }
-  .stat-card .label {
-    font-size: 12px;
-    color: #6b6b6b;
-    margin: 0 0 4px;
+  .korea-marker .marker-label {
+    background: #1a1a1a; color: #ffffff; font-size: 10px;
+    padding: 2px 6px; border-radius: 3px; white-space: nowrap; font-weight: 500;
   }
-  .stat-card .value {
-    font-size: 17px;
-    font-weight: 500;
-    margin: 0;
-  }
-  .stat-card .unit {
-    font-size: 11px;
-    color: #8a8a8a;
-    margin: 2px 0 0;
-  }
-  .section-title {
-    font-size: 14px;
-    font-weight: 500;
-    margin: 1.5rem 0 12px;
-    color: #4a4a4a;
-  }
-  .slider-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 8px;
-  }
-  .slider-row label {
-    font-size: 13px;
-    color: #6b6b6b;
-    min-width: 170px;
-  }
-  .slider-row .value-out {
-    font-size: 13px;
-    font-weight: 500;
-    min-width: 95px;
-    text-align: right;
+  .korea-marker .marker-arrow {
+    width: 0; height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid #1a1a1a;
   }
   input[type="range"] {
-    flex: 1;
-    -webkit-appearance: none;
-    appearance: none;
-    height: 4px;
-    background: #d3d1c7;
-    border-radius: 2px;
-    outline: none;
+    width: 100%; -webkit-appearance: none; appearance: none;
+    height: 4px; background: #d3d1c7; border-radius: 2px; outline: none; margin: 0;
   }
   input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #ffffff;
-    border: 1px solid #888780;
-    cursor: pointer;
-    transition: transform 0.1s;
-  }
-  input[type="range"]::-webkit-slider-thumb:hover {
-    transform: scale(1.1);
+    -webkit-appearance: none; appearance: none;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #ffffff; border: 1px solid #888780; cursor: pointer;
   }
   input[type="range"]::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #ffffff;
-    border: 1px solid #888780;
-    cursor: pointer;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #ffffff; border: 1px solid #888780; cursor: pointer;
   }
+  .korea-caption { margin-left: 182px; margin-top: 4px; font-size: 11px; color: #8a8a8a; }
+  .korea-caption .dot { color: #1a1a1a; }
   .formula-box {
-    background: #f1efe8;
-    border-radius: 8px;
-    padding: 12px 14px;
-    font-size: 12px;
-    color: #6b6b6b;
-    line-height: 1.7;
-    margin-top: 1rem;
+    background: #f1efe8; border-radius: 8px; padding: 12px 14px;
+    font-size: 12px; color: #6b6b6b; line-height: 1.7; margin-top: 1rem;
   }
-  .formula-box code {
-    font-family: "SF Mono", Monaco, Consolas, monospace;
-  }
+  .formula-box code { font-family: "SF Mono", Monaco, Consolas, monospace; }
   .success { color: #0f6e56; }
   .warning { color: #854f0b; }
   .danger { color: #a32d2d; }
+  .auto-calc {
+    background: #ebe9e0; border-radius: 6px; padding: 10px 14px;
+    font-size: 12px; color: #6b6b6b; margin: 8px 0 12px; line-height: 1.7;
+  }
+  .auto-calc strong { color: #1a1a1a; font-weight: 500; }
   @media (max-width: 600px) {
-    .result-row, .stats-row {
-      grid-template-columns: 1fr;
-    }
-    .slider-row label {
-      min-width: 130px;
-      font-size: 12px;
-    }
-    .container {
-      padding: 1.5rem 1rem;
-    }
+    .result-row, .stats-row { grid-template-columns: 1fr; }
+    .slider-row { flex-wrap: wrap; }
+    .slider-row label { min-width: 100%; font-size: 12px; margin-bottom: 4px; }
+    .slider-wrapper { flex: 1 1 calc(100% - 110px); }
+    .slider-row .value-out { min-width: 100px; }
+    .korea-caption { margin-left: 0; }
+    .container { padding: 1.5rem 1rem; }
   }
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>케미컬 위기 대응 모델</h1>
-  <p class="subtitle">호르무즈 봉쇄 시 폐플라스틱 열분해로 부족 플라스틱을 메우기 위한 최소 재활용 효율 (모델 2)</p>
+  <h1>케미컬 위기 대응 모델 v3</h1>
+  <p class="subtitle">호르무즈 해협 봉쇄에 의한 플라스틱 부족과 플라스틱 자급자족을 위한 방법 모색</p>
+
+  <div class="assumption-box">
+    연간 나프타 소비량과 연간 플라스틱 소비량의 비율이 일정하다고 가정하였다. 여러 변인을 조절하여 해당 사회환경에서의 플라스틱 자급자족을 위해 필요한 폐플라스틱을 플라스틱의 핵심 원료로 바꾸는 공정 과정의 효율을 구할 수 있다.
+  </div>
 
   <div class="result-row">
-    <div class="result-card-lg">
-      <p class="label">중동 의존율 α</p>
-      <p class="value" id="alpha-value">—</p>
-      <p class="detail" id="alpha-detail"></p>
+    <div class="result-card">
+      <p class="label">시뮬레이션 — 필요 효율 Z</p>
+      <p class="value" id="z-sim">—</p>
+      <p class="detail" id="z-sim-status"></p>
     </div>
-    <div class="result-card-lg">
-      <p class="label">필요 열분해 효율 Z</p>
-      <p class="value" id="z-value">—</p>
-      <p class="detail" id="z-status"></p>
+    <div class="result-card korea">
+      <p class="label">📍 현재 한국 — 필요 효율 Z</p>
+      <p class="value" id="z-korea">—</p>
+      <p class="detail" id="z-korea-status"></p>
     </div>
   </div>
 
-  <div class="stats-row">
+  <div class="result-row">
+    <div class="result-card">
+      <p class="label">시뮬레이션 — 중동 의존율 α</p>
+      <p class="value" id="alpha-sim" style="font-size: 20px;">—</p>
+    </div>
+    <div class="result-card korea">
+      <p class="label">📍 현재 한국 — 중동 의존율 α</p>
+      <p class="value" id="alpha-korea" style="font-size: 20px;">—</p>
+    </div>
+  </div>
+
+  <div class="stats-row" style="margin-top: 1.5rem;">
     <div class="stat-card">
       <p class="label">목표 X (부족분)</p>
       <p class="value" id="x-value">—</p>
@@ -204,104 +171,174 @@
     </div>
   </div>
 
-  <p class="section-title">① 중동 의존 플라스틱 (연간 기준)</p>
+  <p class="section-title">① 산업 구조 (중동 의존도 · 수득률)</p>
 
-  <div class="slider-row">
-    <label>연간 나프타 소비</label>
-    <input type="range" min="3000" max="7000" value="5000" step="100" id="naphtha-yr">
-    <span class="value-out" id="naphtha-yr-out">5,000만 톤</span>
-  </div>
-  <div class="slider-row">
-    <label>중동 나프타 의존도</label>
-    <input type="range" min="0" max="100" value="36" step="1" id="me-dep">
-    <span class="value-out" id="me-dep-out">36%</span>
-  </div>
-  <div class="slider-row">
-    <label>나프타→플라스틱 수득률</label>
-    <input type="range" min="10" max="60" value="20" step="1" id="yield">
-    <span class="value-out" id="yield-out">20%</span>
-  </div>
-  <div class="slider-row">
-    <label>연간 전체 플라스틱 생산</label>
-    <input type="range" min="500" max="3000" value="1500" step="50" id="total-plastic">
-    <span class="value-out" id="total-plastic-out">1,500만 톤</span>
+  <div class="slider-block">
+    <div class="slider-row">
+      <label>중동 나프타 의존도</label>
+      <div class="slider-wrapper">
+        <div class="korea-marker" id="marker-medep">
+          <div class="marker-label">현재 한국</div>
+          <div class="marker-arrow"></div>
+        </div>
+        <input type="range" min="0" max="100" value="36" step="1" id="me-dep">
+      </div>
+      <span class="value-out" id="me-dep-out">36%</span>
+    </div>
+    <div class="korea-caption"><span class="dot">●</span> 현재 한국: 36%</div>
   </div>
 
-  <p class="section-title">② 일일 폐플라스틱 공급</p>
-
-  <div class="slider-row">
-    <label>일일 폐플라스틱 발생</label>
-    <input type="range" min="10000" max="50000" value="22500" step="500" id="waste">
-    <span class="value-out" id="waste-out">22,500 톤</span>
+  <div class="slider-block">
+    <div class="slider-row">
+      <label>나프타→플라스틱 수득률</label>
+      <div class="slider-wrapper">
+        <div class="korea-marker" id="marker-yield">
+          <div class="marker-label">현재 한국</div>
+          <div class="marker-arrow"></div>
+        </div>
+        <input type="range" min="5" max="60" value="20" step="1" id="yield">
+      </div>
+      <span class="value-out" id="yield-out">20%</span>
+    </div>
+    <div class="korea-caption"><span class="dot">●</span> 현재 한국: 20%</div>
   </div>
-  <div class="slider-row">
-    <label>재활용 가능률</label>
-    <input type="range" min="10" max="80" value="35" step="1" id="recyclable">
-    <span class="value-out" id="recyclable-out">35%</span>
+
+  <p class="section-title">② 인구 및 플라스틱 소비</p>
+
+  <div class="slider-block">
+    <div class="slider-row">
+      <label>인구수</label>
+      <div class="slider-wrapper">
+        <div class="korea-marker" id="marker-pop">
+          <div class="marker-label">현재 한국</div>
+          <div class="marker-arrow"></div>
+        </div>
+        <input type="range" min="30000000" max="80000000" value="51609121" step="100000" id="population">
+      </div>
+      <span class="value-out" id="population-out">5,161만 명</span>
+    </div>
+    <div class="korea-caption"><span class="dot">●</span> 현재 한국: 51,609,121명</div>
+  </div>
+
+  <div class="slider-block">
+    <div class="slider-row">
+      <label>인당 일일 플라스틱 사용량</label>
+      <div class="slider-wrapper">
+        <div class="korea-marker" id="marker-percap">
+          <div class="marker-label">현재 한국</div>
+          <div class="marker-arrow"></div>
+        </div>
+        <input type="range" min="0.05" max="0.6" value="0.285" step="0.005" id="per-capita">
+      </div>
+      <span class="value-out" id="per-capita-out">0.285 kg</span>
+    </div>
+    <div class="korea-caption"><span class="dot">●</span> 현재 한국: 0.285 kg/인·일</div>
+  </div>
+
+  <div class="auto-calc">
+    📊 자동 계산:<br>
+    · 일일 폐플라스틱 발생 D = <strong id="waste-calc">14,709</strong> 톤/일<br>
+    · 연간 나프타 소비 N = <strong id="naphtha-calc">4,800</strong>만 톤 <span style="color: #8a8a8a;">(비례 가정 적용, k=8.94)</span><br>
+    · 연간 중동 의존 플라스틱 = <strong id="me-plastic-calc">346</strong>만 톤
+  </div>
+
+  <div class="slider-block">
+    <div class="slider-row">
+      <label>재활용 가능률</label>
+      <div class="slider-wrapper">
+        <div class="korea-marker" id="marker-recyc">
+          <div class="marker-label">현재 한국</div>
+          <div class="marker-arrow"></div>
+        </div>
+        <input type="range" min="5" max="80" value="16.4" step="0.1" id="recyclable">
+      </div>
+      <span class="value-out" id="recyclable-out">16.4%</span>
+    </div>
+    <div class="korea-caption"><span class="dot">●</span> 현재 한국: 16.4%</div>
   </div>
 
   <p class="section-title">③ 처리 인프라</p>
 
-  <div class="slider-row">
-    <label>공장당 처리 용량 T</label>
-    <input type="range" min="10" max="500" value="100" step="10" id="capacity">
-    <span class="value-out" id="capacity-out">100 톤</span>
-  </div>
-  <div class="slider-row">
-    <label>공장 개수 n</label>
-    <input type="range" min="1" max="500" value="50" step="1" id="factories">
-    <span class="value-out" id="factories-out">50 개</span>
+  <div class="slider-block">
+    <div class="slider-row">
+      <label>공장당 처리 용량 T</label>
+      <div class="slider-wrapper">
+        <div class="korea-marker" id="marker-cap">
+          <div class="marker-label">현재 한국</div>
+          <div class="marker-arrow"></div>
+        </div>
+        <input type="range" min="20" max="500" value="100" step="10" id="capacity">
+      </div>
+      <span class="value-out" id="capacity-out">100 톤</span>
+    </div>
+    <div class="korea-caption"><span class="dot">●</span> 현재 한국 평균: 100톤/일 (소형 27 / 중형 100 / 대형 180톤 혼재)</div>
   </div>
 
-  <div class="formula-box">
-    <code>α = (N × 0.36 × 0.20) / P<sub>전체</sub></code><br>
-    <code>X = P<sub>일일</sub> × α &nbsp;|&nbsp; Y = W × r &nbsp;|&nbsp; C = n × T</code><br>
-    <code>Z = X / min(Y, C) × 100%</code>
+  <div class="slider-block">
+    <div class="slider-row">
+      <label>공장 개수 n</label>
+      <div class="slider-wrapper">
+        <div class="korea-marker" id="marker-fac">
+          <div class="marker-label">현재 한국</div>
+          <div class="marker-arrow"></div>
+        </div>
+        <input type="range" min="1" max="500" value="11" step="1" id="factories">
+      </div>
+      <span class="value-out" id="factories-out">11 개</span>
+    </div>
+    <div class="korea-caption"><span class="dot">●</span> 현재 한국: 11개</div>
   </div>
+
 </div>
 
 <script>
-const ids = ['naphtha-yr','me-dep','yield','total-plastic','waste','recyclable','capacity','factories'];
+const KOREA = {
+  meDep: 0.36, yieldRate: 0.20,
+  population: 51609121, perCapita: 0.285,
+  recyclable: 0.164, capacity: 100, factories: 11
+};
+
+const KOREA_DAILY_WASTE = (KOREA.population * KOREA.perCapita) / 1000;
+const KOREA_NAPHTHA_TON = 48000000;
+const K_RATIO = KOREA_NAPHTHA_TON / (KOREA_DAILY_WASTE * 365);
+
+const sliderConfig = {
+  'me-dep':      { min: 0,    max: 100,  koreaVal: 36,    markerId: 'marker-medep' },
+  'yield':       { min: 5,    max: 60,   koreaVal: 20,    markerId: 'marker-yield' },
+  'population':  { min: 30000000, max: 80000000, koreaVal: 51609121, markerId: 'marker-pop' },
+  'per-capita':  { min: 0.05, max: 0.6,  koreaVal: 0.285, markerId: 'marker-percap' },
+  'recyclable':  { min: 5,    max: 80,   koreaVal: 16.4,  markerId: 'marker-recyc' },
+  'capacity':    { min: 20,   max: 500,  koreaVal: 100,   markerId: 'marker-cap' },
+  'factories':   { min: 1,    max: 500,  koreaVal: 11,    markerId: 'marker-fac' }
+};
+
 const fmt = n => Math.round(n).toLocaleString();
 
-function update() {
-  const naphthaYr = +document.getElementById('naphtha-yr').value;
-  const meDep = +document.getElementById('me-dep').value / 100;
-  const yieldRate = +document.getElementById('yield').value / 100;
-  const totalPlastic = +document.getElementById('total-plastic').value;
-  const waste = +document.getElementById('waste').value;
-  const recyclable = +document.getElementById('recyclable').value / 100;
-  const capacity = +document.getElementById('capacity').value;
-  const factories = +document.getElementById('factories').value;
+function positionMarkers() {
+  Object.keys(sliderConfig).forEach(id => {
+    const cfg = sliderConfig[id];
+    const pct = ((cfg.koreaVal - cfg.min) / (cfg.max - cfg.min)) * 100;
+    const marker = document.getElementById(cfg.markerId);
+    if (marker) marker.style.left = pct + '%';
+  });
+}
 
-  document.getElementById('naphtha-yr-out').textContent = fmt(naphthaYr) + '만 톤';
-  document.getElementById('me-dep-out').textContent = Math.round(meDep*100) + '%';
-  document.getElementById('yield-out').textContent = Math.round(yieldRate*100) + '%';
-  document.getElementById('total-plastic-out').textContent = fmt(totalPlastic) + '만 톤';
-  document.getElementById('waste-out').textContent = fmt(waste) + ' 톤';
-  document.getElementById('recyclable-out').textContent = Math.round(recyclable*100) + '%';
-  document.getElementById('capacity-out').textContent = fmt(capacity) + ' 톤';
-  document.getElementById('factories-out').textContent = factories + ' 개';
-
-  const meDependentPlastic = naphthaYr * meDep * yieldRate;
-  const alpha = totalPlastic > 0 ? meDependentPlastic / totalPlastic : 0;
-  const dailyPlastic = (totalPlastic * 10000) / 365;
-  const X = dailyPlastic * alpha;
-  const Y = waste * recyclable;
+function calcModel(meDep, yieldRate, population, perCapita, recyclable, capacity, factories) {
+  const D = (population * perCapita) / 1000;
+  const N = K_RATIO * D * 365;
+  const meDependentPlastic = N * meDep * yieldRate;
+  const totalPlasticAnnual = D * 365;
+  const alpha = totalPlasticAnnual > 0 ? meDependentPlastic / totalPlasticAnnual : 0;
+  const X = D * alpha;
+  const Y = D * recyclable;
   const C = factories * capacity;
   const bottleneck = Math.min(Y, C);
   const Z = bottleneck > 0 ? (X / bottleneck) * 100 : 0;
+  return { D, N, meDependentPlastic, alpha, X, Y, C, Z };
+}
 
-  document.getElementById('alpha-value').textContent = (alpha * 100).toFixed(1) + '%';
-  document.getElementById('alpha-detail').textContent = '연 ' + fmt(meDependentPlastic) + '만 톤 / ' + fmt(totalPlastic) + '만 톤';
-  document.getElementById('x-value').textContent = fmt(X);
-  document.getElementById('y-value').textContent = fmt(Y);
-  document.getElementById('c-value').textContent = fmt(C);
-
-  const zEl = document.getElementById('z-value');
-  const sEl = document.getElementById('z-status');
+function setZCard(zEl, sEl, Z, Y, C) {
   zEl.textContent = Z >= 1000 ? Math.round(Z).toLocaleString() + '%' : Z.toFixed(1) + '%';
-
   zEl.classList.remove('success', 'warning', 'danger');
   if (Z <= 70) {
     zEl.classList.add('success');
@@ -316,7 +353,45 @@ function update() {
   }
 }
 
-ids.forEach(id => document.getElementById(id).addEventListener('input', update));
+function update() {
+  const meDep = +document.getElementById('me-dep').value / 100;
+  const yieldRate = +document.getElementById('yield').value / 100;
+  const population = +document.getElementById('population').value;
+  const perCapita = +document.getElementById('per-capita').value;
+  const recyclable = +document.getElementById('recyclable').value / 100;
+  const capacity = +document.getElementById('capacity').value;
+  const factories = +document.getElementById('factories').value;
+
+  document.getElementById('me-dep-out').textContent = Math.round(meDep*100) + '%';
+  document.getElementById('yield-out').textContent = Math.round(yieldRate*100) + '%';
+  document.getElementById('population-out').textContent = (population/10000).toFixed(0) + '만 명';
+  document.getElementById('per-capita-out').textContent = perCapita.toFixed(3) + ' kg';
+  document.getElementById('recyclable-out').textContent = (recyclable*100).toFixed(1) + '%';
+  document.getElementById('capacity-out').textContent = fmt(capacity) + ' 톤';
+  document.getElementById('factories-out').textContent = factories + ' 개';
+
+  const sim = calcModel(meDep, yieldRate, population, perCapita, recyclable, capacity, factories);
+  const korea = calcModel(KOREA.meDep, KOREA.yieldRate, KOREA.population, KOREA.perCapita, KOREA.recyclable, KOREA.capacity, KOREA.factories);
+
+  document.getElementById('waste-calc').textContent = fmt(sim.D);
+  document.getElementById('naphtha-calc').textContent = (sim.N / 10000).toFixed(0);
+  document.getElementById('me-plastic-calc').textContent = (sim.meDependentPlastic / 10000).toFixed(0);
+
+  setZCard(document.getElementById('z-sim'), document.getElementById('z-sim-status'), sim.Z, sim.Y, sim.C);
+  setZCard(document.getElementById('z-korea'), document.getElementById('z-korea-status'), korea.Z, korea.Y, korea.C);
+
+  document.getElementById('alpha-sim').textContent = (sim.alpha * 100).toFixed(1) + '%';
+  document.getElementById('alpha-korea').textContent = (korea.alpha * 100).toFixed(1) + '%';
+
+  document.getElementById('x-value').textContent = fmt(sim.X);
+  document.getElementById('y-value').textContent = fmt(sim.Y);
+  document.getElementById('c-value').textContent = fmt(sim.C);
+}
+
+positionMarkers();
+Object.keys(sliderConfig).forEach(id => {
+  document.getElementById(id).addEventListener('input', update);
+});
 update();
 </script>
 </body>
